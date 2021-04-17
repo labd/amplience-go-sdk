@@ -24,6 +24,10 @@ type GenericListResults struct {
 	Page     PageInformation        `json:"page"`
 }
 
+type ArchiveInput struct {
+	Version int `json:"version"`
+}
+
 func toTimeHookFunc() mapstructure.DecodeHookFunc {
 	return func(
 		f reflect.Type,
