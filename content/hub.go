@@ -1,6 +1,7 @@
 package content
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -19,8 +20,31 @@ type Hub struct {
 	LastModifiedDate *time.Time `json:"lastModifiedDate"`
 }
 
-func (client *Client) HubList() {
-	client.request(http.MethodGet, "/hubs", nil)
+type HubResults struct {
+	Links map[string]Link `json:"_links"`
+	Page  PageInformation `json:"page"`
+	Items []Hub
+}
+
+func (r *HubResults) UnmarshalJSON(data []byte) error {
+	generic := GenericListResults{}
+	if err := json.Unmarshal(data, &generic); err != nil {
+		return err
+	}
+
+	if err := decodeStruct(generic.Embedded["hubs"], &r.Items); err != nil {
+		return err
+	}
+
+	r.Links = generic.Links
+	r.Page = generic.Page
+	return nil
+}
+
+func (client *Client) HubList() (HubResults, error) {
+	result := HubResults{}
+	err := client.request(http.MethodGet, "/hubs", &result)
+	return result, err
 }
 
 func (client *Client) HubCreate() {
