@@ -1,9 +1,10 @@
-package amplience
+package content
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -141,4 +142,29 @@ func (r RawArg) MarshalJSON() ([]byte, error) {
 type WebhookCustomPayload struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
+}
+
+func (client *Client) WebhookList(HubID string) error {
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks", HubID)
+	err := client.request(http.MethodGet, endpoint, nil)
+	return err
+}
+
+func (client *Client) WebhookCreate() {
+}
+
+func (client *Client) WebhookGet(HubID string, ID string) (Webhook, error) {
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", HubID, ID)
+	result := Webhook{}
+	err := client.request(http.MethodGet, endpoint, &result)
+	return result, err
+
+}
+
+func (client *Client) WebhookDelete() {
+
+}
+
+func (client *Client) WebhookUpdate() {
+
 }

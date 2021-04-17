@@ -1,4 +1,4 @@
-package amplience
+package content
 
 import (
 	"fmt"

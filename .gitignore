@@ -1,21 +1,2 @@
-terraform-provider-amplience_*
-*.backup
-/dist/*
-coverage.txt
-
-// Terraform files
-*.tf
-.terraform/
-terraform.*
-crash.log
-
-// Editor files
-.vscode
-.idea
-
-// Local files
-/local/*
-!/local/*.example
-
-// Go modules
-vendor/
+main.go
+amplience-go-sdk
