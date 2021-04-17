@@ -40,3 +40,8 @@ func main() {
   }
 }
 ```
+
+
+## Contributing
+
+The Amplience specifications can be found at https://amplience.com/docs/api/dynamic-content/management/

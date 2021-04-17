@@ -5,31 +5,33 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-// Placeholder client configuration struct to pass client info into meta
+// ClientConfig is used to initialize a new Client
 type ClientConfig struct {
 	ClientID     string
 	ClientSecret string
 	URL          string
-	AuthUrl      string
+	AuthURL      string
 	HTTPClient   *http.Client
 }
 
 type Client struct {
 	url        string
 	httpClient *http.Client
+	logLevel   int
 }
 
+// NewClient creates a new Client object
 func NewClient(config *ClientConfig) (*Client, error) {
 
-	if config.AuthUrl == "" {
-		config.AuthUrl = "https://auth.adis.ws/oauth/token"
+	if config.AuthURL == "" {
+		config.AuthURL = "https://auth.adis.ws/oauth/token"
 	}
 
 	if config.URL == "" {
@@ -39,7 +41,7 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	auth := &clientcredentials.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
-		TokenURL:     config.AuthUrl,
+		TokenURL:     config.AuthURL,
 	}
 
 	// If a custom httpClient is passed use that
@@ -55,13 +57,15 @@ func NewClient(config *ClientConfig) (*Client, error) {
 		url:        config.URL,
 		httpClient: httpClient,
 	}
+
+	if os.Getenv("AMPLIENCE_DEBUG") != "" {
+		client.logLevel = 1
+	}
 	return client, nil
 }
 
 func (client *Client) request(method string, path string, body []byte, output interface{}) error {
 	url := fmt.Sprintf("%s%s", client.url, path)
-	log.Printf("%s: %s\n", method, url)
-
 	buf := bytes.NewBuffer(body)
 
 	ctx := context.Background()
@@ -69,11 +73,13 @@ func (client *Client) request(method string, path string, body []byte, output in
 
 	req.Header.Set("content-type", "application/json")
 
-	logRequest(req)
+	if client.logLevel > 0 {
+		logRequest(req)
+	}
 
 	resp, err := client.httpClient.Do(req)
 
-	if resp != nil {
+	if resp != nil && client.logLevel > 0 {
 		logResponse(resp)
 	}
 
@@ -83,7 +89,17 @@ func (client *Client) request(method string, path string, body []byte, output in
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode >= 300 {
+		newErr := ErrorResponse{}
+		if err = json.NewDecoder(resp.Body).Decode(&newErr); err != nil {
+			return err
+		}
+		newErr.StatusCode = resp.StatusCode
+		newErr.Inner = err
+		return &newErr
+	}
 	err = json.NewDecoder(resp.Body).Decode(output)
+
 	if err != nil {
 		return err
 	}

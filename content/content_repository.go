@@ -8,7 +8,7 @@ import (
 
 type ContentTypeReference struct {
 	HubContentTypeID string `json:"hubContentTypeId"`
-	ContentTypeUri   string `json:"contentTypeUri"`
+	ContentTypeURI   string `json:"contentTypeUri"`
 }
 
 type ContentRepository struct {
@@ -17,7 +17,7 @@ type ContentRepository struct {
 	Label        string                 `json:"label"`
 	Status       string                 `json:"status"`
 	Type         string                 `json:"type"`
-	ContentTypes []ContentTypeReference `json:contentTypes"`
+	ContentTypes []ContentTypeReference `json:"contentTypes"`
 }
 
 type ContentRepositoryResults struct {
@@ -41,6 +41,7 @@ func (r *ContentRepositoryResults) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// ContentRepositoryGet returns a ContentRepository for the given id
 func (client *Client) ContentRepositoryGet(id string) (ContentRepository, error) {
 	result := ContentRepository{}
 	endpoint := fmt.Sprintf("/content-repositories/%s", id)
@@ -52,15 +53,15 @@ func (client *Client) ContentRepositoryCreate() {
 
 }
 
-func (client *Client) ContentRepositoryList(hubId string) (ContentRepositoryResults, error) {
-	result := ContentRepositoryResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/content-repositories", hubId)
-	err := client.request(http.MethodGet, endpoint, nil, &result)
-	return result, err
-}
-
 func (client *Client) ContentRepositoryUpdate() {
 
+}
+
+func (client *Client) ContentRepositoryList(hubID string) (ContentRepositoryResults, error) {
+	result := ContentRepositoryResults{}
+	endpoint := fmt.Sprintf("/hubs/%s/content-repositories", hubID)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
 }
 
 func (client *Client) ContentRepositoryFind() {
@@ -71,18 +72,34 @@ func (client *Client) ContentRepositoryShare() {
 
 }
 
-func (client *Client) ContentRepositoryAssignContentType(repositoryId string) {
+// ContentRepositoryAssignContentType assigns a Content Type to a Content Repository
+func (client *Client) ContentRepositoryAssignContentType(repositoryID string, typeID string) (ContentRepository, error) {
+	result := ContentRepository{}
+	body, err := json.Marshal(struct {
+		TypeID string `json:"contentTypeId"`
+	}{
+		typeID,
+	})
+	if err != nil {
+		return result, err
+	}
+	endpoint := fmt.Sprintf("/content-repositories/%s/content-types", repositoryID)
+	err = client.request(http.MethodPost, endpoint, body, &result)
+	return result, err
+}
+
+// ContentRepositoryRemoveContentType removes a Content Type from a Content Repository
+func (client *Client) ContentRepositoryRemoveContentType(repositoryID string, typeID string) (ContentRepository, error) {
+	result := ContentRepository{}
+	endpoint := fmt.Sprintf("/content-repositories/%s/content-types/%s", repositoryID, typeID)
+	err := client.request(http.MethodDelete, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) ContentRepositoryAssignFeature(repositoryID string) {
 
 }
 
-func (client *Client) ContentRepositoryAssignRemoveContentType(repositoryId string, typeId string) {
-
-}
-
-func (client *Client) ContentRepositoryAssignFeature(repositoryId string) {
-
-}
-
-func (client *Client) ContentRepositoryRemoveFeature(repositoryId string) {
+func (client *Client) ContentRepositoryRemoveFeature(repositoryID string) {
 
 }

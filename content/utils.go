@@ -7,6 +7,28 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type ErrorResponse struct {
+	Inner      error
+	StatusCode int
+	Errors     []ErrorObject `json:"errors"`
+}
+
+func (e *ErrorResponse) Error() string {
+	return e.Errors[0].Message
+}
+
+// Unwrap is used to make it work with errors.Is, errors.As.
+func (e *ErrorResponse) Unwrap() error {
+	return e.Inner
+}
+
+type ErrorObject struct {
+	Entity       string `json:"entity"`
+	Property     string `json:"property"`
+	InvalidValue string `json:"invalidValue"`
+	Message      string `json:"message"`
+}
+
 type Link struct {
 	Href string `json:"href"`
 }

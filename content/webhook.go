@@ -1,7 +1,6 @@
 package content
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -37,6 +36,72 @@ type Webhook struct {
 	CustomPayload    *WebhookCustomPayload `json:"customPayload,omitempty"`
 }
 
+func (obj *Webhook) UnmarshalJSON(data []byte) error {
+	type Alias Webhook
+	if err := json.Unmarshal(data, (*Alias)(obj)); err != nil {
+		return err
+	}
+
+	for i := range obj.Filters {
+		var err error
+		obj.Filters[i], err = mapWebhookFilter(obj.Filters[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type WebhookResults struct {
+	Links map[string]Link `json:"_links"`
+	Page  PageInformation `json:"page"`
+	Items []Webhook
+}
+
+func (r *WebhookResults) UnmarshalJSON(data []byte) error {
+	generic := GenericListResults{}
+	if err := json.Unmarshal(data, &generic); err != nil {
+		return err
+	}
+
+	if err := decodeStruct(generic.Embedded["webhooks"], &r.Items); err != nil {
+		return err
+	}
+
+	r.Links = generic.Links
+	r.Page = generic.Page
+	return nil
+}
+
+type WebhookInput struct {
+	Label         string                `json:"label"`
+	Events        []string              `json:"events"`
+	Handlers      []string              `json:"handlers"`
+	Active        bool                  `json:"active"`
+	Notifications []Notification        `json:"notifications"`
+	Secret        string                `json:"secret"`
+	Headers       []WebhookHeader       `json:"headers,omitempty"`
+	Filters       []WebhookFilter       `json:"filters,omitempty"`
+	Method        string                `json:"method"`
+	CustomPayload *WebhookCustomPayload `json:"customPayload,omitempty"`
+}
+
+func (obj *WebhookInput) UnmarshalJSON(data []byte) error {
+	type Alias WebhookInput
+	if err := json.Unmarshal(data, (*Alias)(obj)); err != nil {
+		return err
+	}
+
+	for i := range obj.Filters {
+		var err error
+		obj.Filters[i], err = mapWebhookFilter(obj.Filters[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type Notification struct {
 	Email string
 }
@@ -47,124 +112,70 @@ type WebhookHeader struct {
 	Secret bool   `json:"secret"`
 }
 
-type WebhookFilter struct {
-	Type      string   `json:"type"`
-	Arguments []RawArg `json:"arguments"`
-}
-
-type RawArg struct {
-	JSONPath *string `json:"jsonPath,omitempty"`
-	// We should never have a RawArg struct with both EqValue and InValues so we can set the json key to be equal
-	InValues *[]string `json:"value,omitempty"`
-	EqValue  *string   `json:"value,omitempty"`
-}
-
-type WebhookFilterInArguments struct {
-	Value []string `json:"value"`
-}
-
-type WebhookFilterEqualArguments struct {
-	Value string `json:"value"`
-}
-
-type WebhookFilterJSONPath struct {
-	JSONPath string `json:"jsonPath"`
-}
-
-func (r *RawArg) UnmarshalJSON(buf []byte) error {
-	jsonPath := WebhookFilterJSONPath{}
-	err := json.Unmarshal(buf, &jsonPath)
-	// If we find a jsonPath return immediately
-	if err == nil && jsonPath.JSONPath != "" {
-		r.JSONPath = &jsonPath.JSONPath
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("error unmarshalling JSONPath: %w", err)
-	}
-
-	// Lord forgive me....
-	// So if we get an array back as a response for the WebhookFilterArguments we need to Unmarshal the arguments into
-	// a WebhookFilterInArguments and otherwise if it's a single string in an 'equal' filter we need a WebhookFilterEqualArguments
-	// we check the bytes for a "[" to see if this is the case. Note that we know it's an argument and not a JSONPath
-	// as otherwise we would have returned in the if clause above
-	multiVal := bytes.Contains(buf, []byte("["))
-	if multiVal {
-		inArgs := WebhookFilterInArguments{}
-		err = json.Unmarshal(buf, &inArgs)
-		if err == nil && len(inArgs.Value) != 0 {
-			r.InValues = &inArgs.Value
-			return nil
-		}
-		if err != nil {
-			return fmt.Errorf("error unmarshalling InValues: %w", err)
-		}
-	} else {
-		eqArgs := WebhookFilterEqualArguments{}
-		err = json.Unmarshal(buf, &eqArgs)
-		if err == nil && eqArgs.Value != "" {
-			r.EqValue = &eqArgs.Value
-			return nil
-		}
-		if err != nil {
-			return fmt.Errorf("error unmarshalling EqValue: %w", err)
-		}
-	}
-	return nil
-}
-
-// The below custom Marshal func is a hacky solution to the problem that the API wants different types of values passed
-// to it depending on the value of the "type" field in filter. This should be neatly abstracted away in an SDK
-func (r RawArg) MarshalJSON() ([]byte, error) {
-	if r.EqValue != nil && r.InValues != nil {
-		return nil, fmt.Errorf("could not marshal %v, should not get both InValue and EqValue", r)
-	}
-	jsonPath, err := json.Marshal(r.JSONPath)
-	if err == nil && len(jsonPath) > 0 && bytes.Compare(jsonPath, []byte("null")) != 0 {
-		return []byte(fmt.Sprintf("{\"jsonPath\": %s }", jsonPath)), nil
-	}
-	if r.EqValue != nil {
-		equalValue, err := json.Marshal(r.EqValue)
-		if err != nil {
-			return nil, err
-		}
-		return []byte(fmt.Sprintf("{\"value\": %s }", equalValue)), nil
-	} else if r.InValues != nil {
-		inValues, err := json.Marshal(r.InValues)
-		if err != nil {
-			return nil, err
-		}
-		return []byte(fmt.Sprintf("{\"value\": %s }", inValues)), nil
-	}
-	return []byte(""), nil
-}
-
 type WebhookCustomPayload struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
 }
 
-func (client *Client) WebhookList(HubID string) error {
-	endpoint := fmt.Sprintf("/hubs/%s/webhooks", HubID)
-	err := client.request(http.MethodGet, endpoint, nil, nil)
-	return err
+func (client *Client) WebhookCreate(hubID string, input WebhookInput) (Webhook, error) {
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks", hubID)
+	result := Webhook{}
+
+	body, err := json.Marshal(input)
+	if err != nil {
+		return result, err
+	}
+
+	err = client.request(http.MethodPost, endpoint, body, &result)
+	return result, err
 }
 
-func (client *Client) WebhookCreate() {
-}
-
-func (client *Client) WebhookGet(HubID string, ID string) (Webhook, error) {
-	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", HubID, ID)
+func (client *Client) WebhookGet(hubID string, ID string) (Webhook, error) {
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", hubID, ID)
 	result := Webhook{}
 	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
-
 }
 
-func (client *Client) WebhookDelete() {
+func (client *Client) WebhookUpdate(hubID string, current Webhook, input WebhookInput) (Webhook, error) {
+	result := Webhook{}
 
+	body, err := createUpdatePatch(
+		WebhookInput{
+			Label:    current.Label,
+			Events:   current.Events,
+			Handlers: current.Handlers,
+			Active:   current.Active,
+			Secret:   current.Secret,
+			Filters:  current.Filters,
+			Method:   current.Method,
+		},
+		input)
+
+	if body == nil {
+		return current, nil
+	}
+
+	if err != nil {
+		return result, err
+	}
+
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", hubID, current.ID)
+	err = client.request(http.MethodPatch, endpoint, body, &result)
+	return result, err
 }
 
-func (client *Client) WebhookUpdate() {
+func (client *Client) WebhookDelete(hubID string, id string) (Webhook, error) {
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", hubID, id)
+	result := Webhook{}
 
+	err := client.request(http.MethodDelete, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) WebhookList(hubID string) (WebhookResults, error) {
+	result := WebhookResults{}
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks", hubID)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
 }

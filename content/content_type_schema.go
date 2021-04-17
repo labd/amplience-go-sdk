@@ -48,25 +48,23 @@ func (r *ContentTypeSchemaResults) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (client *Client) ContentTypeSchemaCreate(hubID string, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
+	result := ContentTypeSchema{}
+	body, err := json.Marshal(update)
+	if err != nil {
+		return result, err
+	}
+	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas", hubID)
+	err = client.request(http.MethodPost, endpoint, body, &result)
+	return result, err
+}
+
 func (client *Client) ContentTypeSchemaGet(id string) (ContentTypeSchema, error) {
 	endpoint := fmt.Sprintf("/content-type-schemas/%s", id)
 	result := ContentTypeSchema{}
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
-
-}
-
-func (client *Client) ContentTypeSchemaCreate(hubId string, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
-	result := ContentTypeSchema{}
-	body, err := json.Marshal(update)
-	if err != nil {
-		return result, err
-	}
-	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas", hubId)
-	err = client.request(http.MethodPost, endpoint, body, &result)
-	return result, err
-
 }
 
 func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
@@ -93,9 +91,9 @@ func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update 
 	return result, err
 }
 
-func (client *Client) ContentTypeSchemaList(hubId string) (ContentTypeSchemaResults, error) {
+func (client *Client) ContentTypeSchemaList(hubID string) (ContentTypeSchemaResults, error) {
 	result := ContentTypeSchemaResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas", hubId)
+	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas", hubID)
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
