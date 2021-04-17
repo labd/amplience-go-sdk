@@ -21,9 +21,10 @@ type ContentTypeSchema struct {
 	ValidationLevel  string          `json:"validationLevel"`
 }
 
-type ContentTypeSchemaUpdate struct {
-	Body            string `json:"body"`
-	ValidationLevel string `json:"validationLevel"`
+type ContentTypeSchemaInput struct {
+	SchemaID        string `json:"schemaId,omitempty"`
+	Body            string `json:"body,omitempty"`
+	ValidationLevel string `json:"validationLevel,omitempty"`
 }
 
 type ContentTypeSchemaResults struct {
@@ -56,17 +57,30 @@ func (client *Client) ContentTypeSchemaGet(id string) (ContentTypeSchema, error)
 
 }
 
-func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update ContentTypeSchemaUpdate) (ContentTypeSchema, error) {
+func (client *Client) ContentTypeSchemaCreate(hubId string, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
+	result := ContentTypeSchema{}
+	body, err := json.Marshal(update)
+	if err != nil {
+		return result, err
+	}
+	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas", hubId)
+	err = client.request(http.MethodPost, endpoint, body, &result)
+	return result, err
+
+}
+
+func (client *Client) ContentTypeSchemaInput(current ContentTypeSchema, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
 	result := ContentTypeSchema{}
 
-	patchBody, err := createUpdatePatch(
-		ContentTypeSchemaUpdate{
+	body, err := createUpdatePatch(
+		ContentTypeSchemaInput{
 			Body:            current.Body,
 			ValidationLevel: current.ValidationLevel,
+			SchemaID:        current.SchemaID,
 		},
 		update)
 
-	if patchBody == nil {
+	if body == nil {
 		return current, nil
 	}
 
@@ -75,14 +89,8 @@ func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update 
 	}
 
 	endpoint := fmt.Sprintf("/content-type-schemas/%s", current.ID)
-
-	err = client.request(http.MethodPatch, endpoint, patchBody, &result)
+	err = client.request(http.MethodPatch, endpoint, body, &result)
 	return result, err
-
-}
-
-func (client *Client) ContentTypeSchemaCreate() {
-
 }
 
 func (client *Client) ContentTypeSchemaList(hubId string) (ContentTypeSchemaResults, error) {
