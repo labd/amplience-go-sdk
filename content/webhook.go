@@ -146,7 +146,7 @@ type WebhookCustomPayload struct {
 
 func (client *Client) WebhookList(HubID string) error {
 	endpoint := fmt.Sprintf("/hubs/%s/webhooks", HubID)
-	err := client.request(http.MethodGet, endpoint, nil)
+	err := client.request(http.MethodGet, endpoint, nil, nil)
 	return err
 }
 
@@ -156,7 +156,7 @@ func (client *Client) WebhookCreate() {
 func (client *Client) WebhookGet(HubID string, ID string) (Webhook, error) {
 	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", HubID, ID)
 	result := Webhook{}
-	err := client.request(http.MethodGet, endpoint, &result)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
 
 }

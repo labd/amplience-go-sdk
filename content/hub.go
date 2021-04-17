@@ -43,7 +43,7 @@ func (r *HubResults) UnmarshalJSON(data []byte) error {
 
 func (client *Client) HubList() (HubResults, error) {
 	result := HubResults{}
-	err := client.request(http.MethodGet, "/hubs", &result)
+	err := client.request(http.MethodGet, "/hubs", nil, &result)
 	return result, err
 }
 
@@ -58,6 +58,6 @@ func (client *Client) HubGet(ID string) (Hub, error) {
 	endpoint := fmt.Sprintf("/hubs/%s", ID)
 	result := Hub{}
 
-	err := client.request(http.MethodGet, endpoint, &result)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
 }

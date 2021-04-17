@@ -64,7 +64,7 @@ func (client *Client) ContentItemList(repositoryId string) (ContentItemResults, 
 	result := ContentItemResults{}
 	endpoint := fmt.Sprintf("/content-repositories/%s/content-items", repositoryId)
 
-	err := client.request(http.MethodGet, endpoint, &result)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
 
 }

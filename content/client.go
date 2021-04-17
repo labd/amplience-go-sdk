@@ -1,6 +1,7 @@
 package content
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -57,12 +58,14 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	return client, nil
 }
 
-func (client *Client) request(method string, path string, output interface{}) error {
+func (client *Client) request(method string, path string, body []byte, output interface{}) error {
 	url := fmt.Sprintf("%s%s", client.url, path)
 	log.Printf("%s: %s\n", method, url)
 
+	buf := bytes.NewBuffer(body)
+
 	ctx := context.Background()
-	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+	req, err := http.NewRequestWithContext(ctx, method, url, buf)
 
 	req.Header.Set("content-type", "application/json")
 

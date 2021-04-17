@@ -44,7 +44,7 @@ func (r *ContentRepositoryResults) UnmarshalJSON(data []byte) error {
 func (client *Client) ContentRepositoryGet(id string) (ContentRepository, error) {
 	result := ContentRepository{}
 	endpoint := fmt.Sprintf("/content-repositories/%s", id)
-	err := client.request(http.MethodGet, endpoint, &result)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
 }
 
@@ -55,7 +55,7 @@ func (client *Client) ContentRepositoryCreate() {
 func (client *Client) ContentRepositoryList(hubId string) (ContentRepositoryResults, error) {
 	result := ContentRepositoryResults{}
 	endpoint := fmt.Sprintf("/hubs/%s/content-repositories", hubId)
-	err := client.request(http.MethodGet, endpoint, &result)
+	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
 }
 
