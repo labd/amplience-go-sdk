@@ -24,10 +24,11 @@ type ContentTypeSettings struct {
 }
 
 type ContentType struct {
-	ID       string              `json:"id"`
-	Status   string              `json:"status"`
-	Settings ContentTypeSettings `json:"settings,omitempty"`
-	Links    map[string]Link     `json:"_links"`
+	ID             string              `json:"id"`
+	ContentTypeURI string              `json:"contentTypeUri"`
+	Status         string              `json:"status"`
+	Settings       ContentTypeSettings `json:"settings,omitempty"`
+	Links          map[string]Link     `json:"_links"`
 }
 
 type ContentTypeInput struct {
