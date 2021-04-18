@@ -12,12 +12,25 @@ type ContentTypeReference struct {
 }
 
 type ContentRepository struct {
-	ID           string                 `json:"id"`
-	Name         string                 `json:"name"`
-	Label        string                 `json:"label"`
-	Status       string                 `json:"status"`
-	Type         string                 `json:"type"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Label        string `json:"label"`
+	Status       string `json:"status"`
+	Type         string `json:"type"`
+	HubID        string
+	Links        map[string]Link        `json:"_links"`
 	ContentTypes []ContentTypeReference `json:"contentTypes"`
+}
+
+func (r *ContentRepository) GetHub(client *Client) (Hub, error) {
+	result := Hub{}
+	err := client.request(http.MethodGet, r.Links["hub"].Href, nil, &result)
+	return result, err
+}
+
+type ContentRepositoryInput struct {
+	Name  string `json:"name"`
+	Label string `json:"label"`
 }
 
 type ContentRepositoryResults struct {

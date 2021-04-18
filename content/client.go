@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -65,7 +66,19 @@ func NewClient(config *ClientConfig) (*Client, error) {
 }
 
 func (client *Client) request(method string, path string, body []byte, output interface{}) error {
-	url := fmt.Sprintf("%s%s", client.url, path)
+
+	raw_url, err := url.Parse(path)
+	if err != nil {
+		return err
+	}
+
+	var url string
+	if raw_url.IsAbs() {
+		url = path
+	} else {
+		url = fmt.Sprintf("%s%s", client.url, path)
+	}
+
 	buf := bytes.NewBuffer(body)
 
 	ctx := context.Background()
