@@ -165,12 +165,10 @@ func (client *Client) WebhookUpdate(hubID string, current Webhook, input Webhook
 	return result, err
 }
 
-func (client *Client) WebhookDelete(hubID string, id string) (Webhook, error) {
-	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", hubID, id)
-	result := Webhook{}
-
-	err := client.request(http.MethodDelete, endpoint, nil, &result)
-	return result, err
+func (client *Client) WebhookDelete(hub_id string, id string) error {
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks/%s", hub_id, id)
+	err := client.request(http.MethodDelete, endpoint, nil, nil)
+	return err
 }
 
 func (client *Client) WebhookList(hubID string) (WebhookResults, error) {
