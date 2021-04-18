@@ -106,16 +106,11 @@ func (client *Client) ContentTypeList(hubID string) (ContentTypeResults, error) 
 	return result, err
 }
 
-func (client *Client) ContentTypeArchive(id string, version int) (ContentType, error) {
+func (client *Client) ContentTypeArchive(id string) (ContentType, error) {
 	result := ContentType{}
 	endpoint := fmt.Sprintf("/content-types/%s/archive", id)
 
-	body, err := json.Marshal(ArchiveInput{Version: version})
-	if err != nil {
-		return result, err
-	}
-
-	err = client.request(http.MethodPost, endpoint, body, &result)
+	err := client.request(http.MethodPost, endpoint, nil, &result)
 	return result, err
 }
 

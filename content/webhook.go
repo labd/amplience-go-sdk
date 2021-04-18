@@ -171,9 +171,9 @@ func (client *Client) WebhookDelete(hub_id string, id string) error {
 	return err
 }
 
-func (client *Client) WebhookList(hubID string) (WebhookResults, error) {
+func (client *Client) WebhookList(hub_id string) (WebhookResults, error) {
 	result := WebhookResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/webhooks", hubID)
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks", hub_id)
 	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
 }

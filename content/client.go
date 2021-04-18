@@ -102,7 +102,15 @@ func (client *Client) request(method string, path string, body []byte, output in
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 300 {
+	switch {
+	case resp.StatusCode >= 200 && resp.StatusCode < 204:
+		err = json.NewDecoder(resp.Body).Decode(output)
+		if err != nil {
+			return err
+		}
+	case resp.StatusCode == 204:
+		return nil
+	case resp.StatusCode >= 300:
 		newErr := ErrorResponse{}
 		if err = json.NewDecoder(resp.Body).Decode(&newErr); err != nil {
 			return err
@@ -110,11 +118,6 @@ func (client *Client) request(method string, path string, body []byte, output in
 		newErr.StatusCode = resp.StatusCode
 		newErr.Inner = err
 		return &newErr
-	}
-	err = json.NewDecoder(resp.Body).Decode(output)
-
-	if err != nil {
-		return err
 	}
 
 	return nil
