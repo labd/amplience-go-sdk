@@ -59,15 +59,42 @@ func (client *Client) ContentRepositoryGet(id string) (ContentRepository, error)
 	result := ContentRepository{}
 	endpoint := fmt.Sprintf("/content-repositories/%s", id)
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+
 	return result, err
 }
 
-func (client *Client) ContentRepositoryCreate() {
-
+func (client *Client) ContentRepositoryCreate(hubID string, input ContentRepositoryInput) (ContentRepository, error) {
+	result := ContentRepository{}
+	body, err := json.Marshal(input)
+	if err != nil {
+		return result, err
+	}
+	endpoint := fmt.Sprintf("/hubs/%s/content-repositories", hubID)
+	err = client.request(http.MethodPost, endpoint, body, &result)
+	return result, err
 }
 
-func (client *Client) ContentRepositoryUpdate() {
+func (client *Client) ContentRepositoryUpdate(current ContentRepository, input ContentRepositoryInput) (ContentRepository, error) {
+	result := ContentRepository{}
 
+	body, err := createUpdatePatch(
+		ContentRepositoryInput{
+			Name:  current.Name,
+			Label: current.Label,
+		},
+		input)
+
+	if body == nil {
+		return current, nil
+	}
+
+	if err != nil {
+		return result, err
+	}
+
+	endpoint := fmt.Sprintf("/content-repositories/%s", current.ID)
+	err = client.request(http.MethodPatch, endpoint, body, &result)
+	return result, err
 }
 
 func (client *Client) ContentRepositoryList(hubID string) (ContentRepositoryResults, error) {
