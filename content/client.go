@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -112,11 +113,20 @@ func (client *Client) request(method string, path string, body []byte, output in
 		return nil
 	case resp.StatusCode >= 300:
 		newErr := ErrorResponse{}
-		if err = json.NewDecoder(resp.Body).Decode(&newErr); err != nil {
+
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&newErr); err != nil {
+			return err
+		}
+		// The API sometimes returns just `{messsage}` instead of `{errors: [{messsage}]}`,
+		// so we try again for those cases.
+		errorObject := ErrorObject{}
+		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&errorObject); err != nil {
 			return err
 		}
 		newErr.StatusCode = resp.StatusCode
 		newErr.Inner = err
+		newErr.Errors = []ErrorObject{errorObject}
 		return &newErr
 	}
 

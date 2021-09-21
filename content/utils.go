@@ -75,10 +75,10 @@ func toTimeHookFunc() mapstructure.DecodeHookFunc {
 
 func decodeStruct(input interface{}, result interface{}) error {
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			toTimeHookFunc()),
-		Result: result,
+		Metadata:   nil,
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(toTimeHookFunc()),
+		Result:     result,
+		TagName:    "json",
 	})
 	if err != nil {
 		return err
