@@ -26,13 +26,13 @@ type AlgoliaIndex struct {
 	Links            map[string]Link `json:"_links"`
 }
 
-type AsssignedContentTypeResults struct {
+type AssignedContentTypeResults struct {
 	Links map[string]Link `json:"_links"`
 	Page  PageInformation `json:"page"`
-	Items []AsssignedContentType
+	Items []AssignedContentType
 }
 
-type AsssignedContentType struct {
+type AssignedContentType struct {
 	ID               string          `json:"id,omitempty"`
 	ContentTypeUri   string          `json:"contentTypeUri"`
 	CreatedDate      *time.Time      `json:"createdDate,omitempty"`
@@ -41,17 +41,17 @@ type AsssignedContentType struct {
 }
 
 type AlgoliaIndexInput struct {
-	Suffix               string                      `json:"suffix"`
-	Label                string                      `json:"label"`
-	Type                 string                      `json:"type"` // PRODUCTION, STAGING
-	AssignedContentTypes []AsssignedContentTypeInput `json:"assignedContentTypes"`
+	Suffix               string                     `json:"suffix"`
+	Label                string                     `json:"label"`
+	Type                 string                     `json:"type"` // PRODUCTION, STAGING
+	AssignedContentTypes []AssignedContentTypeInput `json:"assignedContentTypes"`
 }
 
-type AsssignedContentTypeInput struct {
+type AssignedContentTypeInput struct {
 	ContentTypeUri string `json:"contentTypeUri"`
 }
 
-func (r *AsssignedContentTypeResults) UnmarshalJSON(data []byte) error {
+func (r *AssignedContentTypeResults) UnmarshalJSON(data []byte) error {
 	generic := GenericListResults{}
 	if err := json.Unmarshal(data, &generic); err != nil {
 		return err
@@ -164,7 +164,7 @@ func (client *Client) AlgoliaIndexSettingsUpdate(hub_id string, id string, input
 
 func (client *Client) AlgoliaIndexWebhooksGet(hub_id string, id string) ([]Webhook, error) {
 	endpoint := fmt.Sprintf("/algolia-search/%s/indexes/%s/assigned-content-types", hub_id, id)
-	assignedContentTypes := AsssignedContentTypeResults{}
+	assignedContentTypes := AssignedContentTypeResults{}
 	err := client.request(http.MethodGet, endpoint, nil, &assignedContentTypes)
 	result := make([]Webhook, len(assignedContentTypes.Items))
 

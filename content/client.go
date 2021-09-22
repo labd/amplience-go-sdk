@@ -118,7 +118,7 @@ func (client *Client) request(method string, path string, body []byte, output in
 		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&newErr); err != nil {
 			return err
 		}
-		// The API sometimes returns just `{messsage}` instead of `{errors: [{messsage}]}`,
+		// The API sometimes returns just `{message}` instead of `{errors: [{message}]}`,
 		// so we try again for those cases.
 		errorObject := ErrorObject{}
 		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&errorObject); err != nil {
