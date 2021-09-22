@@ -142,13 +142,14 @@ func (client *Client) WebhookUpdate(hubID string, current Webhook, input Webhook
 
 	body, err := createUpdatePatch(
 		WebhookInput{
-			Label:    current.Label,
-			Events:   current.Events,
-			Handlers: current.Handlers,
-			Active:   current.Active,
-			Secret:   current.Secret,
-			Filters:  current.Filters,
-			Method:   current.Method,
+			Label:         current.Label,
+			Events:        current.Events,
+			Handlers:      current.Handlers,
+			Active:        current.Active,
+			Secret:        current.Secret,
+			Filters:       current.Filters,
+			Method:        current.Method,
+			Notifications: current.Notifications,
 		},
 		input)
 

@@ -30,7 +30,6 @@ func (r *FolderResults) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	// FIXME: nested `_links` is not decoded
 	if err := decodeStruct(generic.Embedded["folders"], &r.Items); err != nil {
 		return err
 	}
