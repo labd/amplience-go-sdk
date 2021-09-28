@@ -111,22 +111,25 @@ func (client *Client) request(method string, path string, body []byte, output in
 		}
 	case resp.StatusCode == 204:
 		return nil
-	case resp.StatusCode >= 300:
+	case resp.StatusCode >= 400:
 		newErr := ErrorResponse{}
 
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
 		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&newErr); err != nil {
 			return err
 		}
-		// The API sometimes returns just `{message}` instead of `{errors: [{message}]}`,
-		// so we try again for those cases.
-		errorObject := ErrorObject{}
-		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&errorObject); err != nil {
-			return err
+		if len(newErr.Errors) == 0 {
+			// The API sometimes returns just `{message}` instead of `{errors: [{message}]}`,
+			// so we try again for those cases.
+			errorObject := ErrorObject{}
+			if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&errorObject); err != nil {
+				return err
+			}
+			newErr.Errors = []ErrorObject{errorObject}
 		}
 		newErr.StatusCode = resp.StatusCode
 		newErr.Inner = err
-		newErr.Errors = []ErrorObject{errorObject}
 		return &newErr
 	}
 
