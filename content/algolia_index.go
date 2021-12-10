@@ -99,9 +99,7 @@ func (client *Client) AlgoliaIndexUpdate(hubID string, current AlgoliaIndex, inp
 	result := AlgoliaIndex{}
 
 	body, err := createUpdatePatch(
-		AlgoliaIndexInput{
-			Label: current.Label,
-		},
+		AlgoliaIndexInput{},
 		input)
 
 	if body == nil {
