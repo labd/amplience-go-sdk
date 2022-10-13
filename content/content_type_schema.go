@@ -91,11 +91,33 @@ func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update 
 	return result, err
 }
 
-func (client *Client) ContentTypeSchemaList(hubID string) (ContentTypeSchemaResults, error) {
+func (client *Client) ContentTypeSchemaList(hubID string, parameters StatusPaginationParameters) (ContentTypeSchemaResults, error) {
 	result := ContentTypeSchemaResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas", hubID)
+
+	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas?%s", hubID, StatusPaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) ContentTypeSchemaGetAll(hubID string, status ContentStatus) ([]ContentTypeSchema, error) {
+	parameters := StatusPaginationParameters{}
+	parameters.Status = status
+
+	response, err := client.ContentTypeSchemaList(hubID, parameters)
+
+	var result []ContentTypeSchema
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.ContentTypeSchemaList(hubID, parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }
 

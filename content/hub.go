@@ -41,9 +41,31 @@ func (r *HubResults) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (client *Client) HubList() (HubResults, error) {
+func (client *Client) HubList(parameters PaginationParameters) (HubResults, error) {
+	parameters.Sort = "" // Sort is not supported.
 	result := HubResults{}
-	err := client.request(http.MethodGet, "/hubs", nil, &result)
+	endpoint := fmt.Sprintf("/hubs?%s", PaginationQueryString(parameters))
+	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) HubGetAll() ([]Hub, error) {
+	parameters := PaginationParameters{}
+
+	response, err := client.HubList(parameters)
+
+	var result []Hub
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.HubList(parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }
 

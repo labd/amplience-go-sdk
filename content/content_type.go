@@ -98,11 +98,32 @@ func (client *Client) ContentTypeUpdate(current ContentType, input ContentTypeIn
 	return result, err
 }
 
-func (client *Client) ContentTypeList(hubID string) (ContentTypeResults, error) {
+func (client *Client) ContentTypeList(hubID string, parameters StatusPaginationParameters) (ContentTypeResults, error) {
 	result := ContentTypeResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/content-types", hubID)
+	endpoint := fmt.Sprintf("/hubs/%s/content-types?%s", hubID, StatusPaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) ContentTypeGetAll(hubID string, status ContentStatus) ([]ContentType, error) {
+	parameters := StatusPaginationParameters{}
+	parameters.Status = status
+
+	response, err := client.ContentTypeList(hubID, parameters)
+
+	var result []ContentType
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.ContentTypeList(hubID, parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }
 

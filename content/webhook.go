@@ -172,9 +172,29 @@ func (client *Client) WebhookDelete(hub_id string, id string) error {
 	return err
 }
 
-func (client *Client) WebhookList(hub_id string) (WebhookResults, error) {
+func (client *Client) WebhookList(hub_id string, parameters PaginationParameters) (WebhookResults, error) {
 	result := WebhookResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/webhooks", hub_id)
+	endpoint := fmt.Sprintf("/hubs/%s/webhooks?%s", hub_id, PaginationQueryString(parameters))
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) WebhookGetAll(hubID string) ([]Webhook, error) {
+	parameters := PaginationParameters{}
+
+	response, err := client.WebhookList(hubID, parameters)
+
+	var result []Webhook
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.WebhookList(hubID, parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }

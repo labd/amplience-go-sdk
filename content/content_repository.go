@@ -97,10 +97,30 @@ func (client *Client) ContentRepositoryUpdate(current ContentRepository, input C
 	return result, err
 }
 
-func (client *Client) ContentRepositoryList(hubID string) (ContentRepositoryResults, error) {
+func (client *Client) ContentRepositoryList(hubID string, parameters PaginationParameters) (ContentRepositoryResults, error) {
 	result := ContentRepositoryResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/content-repositories", hubID)
+	endpoint := fmt.Sprintf("/hubs/%s/content-repositories?%s", hubID, PaginationQueryString(parameters))
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) ContentRepositoryGetAll(hubID string) ([]ContentRepository, error) {
+	parameters := PaginationParameters{}
+
+	response, err := client.ContentRepositoryList(hubID, parameters)
+
+	var result []ContentRepository
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.ContentRepositoryList(hubID, parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }
 
