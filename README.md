@@ -2,8 +2,9 @@
 
 GO SDK for [Amplience](https://amplience.com/).
 
+## Development
 
-## Example
+To test the API, it might be useful to create a `main.go` file with your own Amplience credentials.
 
 ```go
 package main
@@ -41,7 +42,12 @@ func main() {
 }
 ```
 
+Then you can run your test code like so:
+
+```
+go run main.go
+```
 
 ## Contributing
 
-The Amplience specifications can be found at https://amplience.com/docs/api/dynamic-content/management/
+The Amplience specifications can be found at https://amplience.com/developers/docs/apis/content-management-reference/

@@ -144,11 +144,32 @@ func (client *Client) ContentItemUpdate(current ContentItem, input ContentItemIn
 
 // ContentItemList lists all of the Content Items within the given Content
 // Repository
-func (client *Client) ContentItemList(repositoryID string) (ContentItemResults, error) {
+func (client *Client) ContentItemList(repositoryID string, parameters ContentItemPaginationParameters) (ContentItemResults, error) {
 	result := ContentItemResults{}
-	endpoint := fmt.Sprintf("/content-repositories/%s/content-items", repositoryID)
+	endpoint := fmt.Sprintf("/content-repositories/%s/content-items?%s", repositoryID, ContentItemPaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) ContentItemGetAll(hubID string, status ContentStatus) ([]ContentItem, error) {
+	parameters := ContentItemPaginationParameters{}
+	parameters.Status = status
+
+	response, err := client.ContentItemList(hubID, parameters)
+
+	var result []ContentItem
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.ContentItemList(hubID, parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }
 

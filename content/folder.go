@@ -66,10 +66,30 @@ func (client *Client) FolderDelete(id string) (Folder, error) {
 	return result, err
 }
 
-func (client *Client) FolderList(repositoryID string) (FolderResults, error) {
+func (client *Client) FolderList(repositoryID string, parameters PaginationParameters) (FolderResults, error) {
 	result := FolderResults{}
-	endpoint := fmt.Sprintf("/content-repositories/%s/folders", repositoryID)
+	endpoint := fmt.Sprintf("/content-repositories/%s/folders?%s", repositoryID, PaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) FolderGetAll(hubID string) ([]Folder, error) {
+	parameters := PaginationParameters{}
+
+	response, err := client.FolderList(hubID, parameters)
+
+	var result []Folder
+	result = append(result, response.Items...)
+
+	for parameters.Page < response.Page.TotalPages-1 {
+		parameters.Page++
+		response, err := client.FolderList(hubID, parameters)
+		if err != nil {
+			break
+		}
+		result = append(result, response.Items...)
+	}
+
 	return result, err
 }
