@@ -76,6 +76,23 @@ func (client *Client) ContentTypeGet(id string) (ContentType, error) {
 	return result, err
 }
 
+func (client *Client) ContentTypeFindByUri(uri string, hubId string) (ContentType, error) {
+	dummy := ContentType{}
+	allItems, getErr := client.ContentTypeGetAll(hubId, StatusAny)
+
+	if getErr != nil {
+		return dummy, getErr
+	}
+
+	for _, item := range allItems {
+		if item.ContentTypeURI == uri {
+			return item, nil
+		}
+	}
+
+	return dummy, fmt.Errorf(fmt.Sprintf("Could not find content-type %s", uri))
+}
+
 func (client *Client) ContentTypeUpdate(current ContentType, input ContentTypeInput) (ContentType, error) {
 	result := ContentType{}
 
@@ -135,15 +152,10 @@ func (client *Client) ContentTypeArchive(id string) (ContentType, error) {
 	return result, err
 }
 
-func (client *Client) ContentTypeUnarchive(id string, version int) (ContentType, error) {
+func (client *Client) ContentTypeUnarchive(id string) (ContentType, error) {
 	result := ContentType{}
 	endpoint := fmt.Sprintf("/content-types/%s/unarchive", id)
 
-	body, err := json.Marshal(ArchiveInput{Version: version})
-	if err != nil {
-		return result, err
-	}
-
-	err = client.request(http.MethodPost, endpoint, body, &result)
+	err := client.request(http.MethodPost, endpoint, nil, &result)
 	return result, err
 }
