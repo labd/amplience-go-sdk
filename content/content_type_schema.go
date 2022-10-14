@@ -67,6 +67,23 @@ func (client *Client) ContentTypeSchemaGet(id string) (ContentTypeSchema, error)
 	return result, err
 }
 
+func (client *Client) ContentTypeSchemaFindBySchemaId(schemaId string, hubId string) (ContentTypeSchema, error) {
+	dummy := ContentTypeSchema{}
+	allItems, getErr := client.ContentTypeSchemaGetAll(hubId, StatusAny)
+
+	if getErr != nil {
+		return dummy, getErr
+	}
+
+	for _, item := range allItems {
+		if item.SchemaID == schemaId {
+			return item, nil
+		}
+	}
+
+	return dummy, fmt.Errorf(fmt.Sprintf("Could not find content-type-schema %s", schemaId))
+}
+
 func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
 	result := ContentTypeSchema{}
 
