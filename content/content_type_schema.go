@@ -111,7 +111,7 @@ func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update 
 func (client *Client) ContentTypeSchemaList(hubID string, parameters StatusPaginationParameters) (ContentTypeSchemaResults, error) {
 	result := ContentTypeSchemaResults{}
 
-	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas?%s", hubID, StatusPaginationQueryString(parameters))
+	endpoint := fmt.Sprintf("/hubs/%s/content-type-schemas?%s", hubID, ContentTypeSchemaPaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err

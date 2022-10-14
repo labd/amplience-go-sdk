@@ -41,7 +41,24 @@ type StatusPaginationParameters struct {
 	Status ContentStatus
 }
 
-func StatusPaginationQueryString(parameters StatusPaginationParameters) string {
+func ContentTypeSchemaPaginationQueryString(parameters StatusPaginationParameters) string {
+
+	q := url.Values{}
+	q.Add("page", fmt.Sprintf("%v", parameters.Page))
+	if parameters.Size > 0 {
+		q.Add("size", fmt.Sprintf("%v", parameters.Size))
+	}
+	// NOTE: for content-type-schema, you should NOT add a status if you want both archived and unarchived
+	if parameters.Status != StatusAny {
+		q.Add("status", string(parameters.Status))
+	}
+	if parameters.Sort != "" {
+		q.Add("sort", parameters.Sort)
+	}
+
+	return strings.Replace(q.Encode(), "%2C", ",", 1)
+}
+func ContentTypePaginationQueryString(parameters StatusPaginationParameters) string {
 
 	q := url.Values{}
 	q.Add("page", fmt.Sprintf("%v", parameters.Page))
@@ -50,12 +67,15 @@ func StatusPaginationQueryString(parameters StatusPaginationParameters) string {
 	}
 	if parameters.Status != StatusAny {
 		q.Add("status", string(parameters.Status))
+	} else {
+		// NOTE: for content-type, you have to add the comma separated status
+		q.Add("status", "ACTIVE,ARCHIVED")
 	}
 	if parameters.Sort != "" {
 		q.Add("sort", parameters.Sort)
 	}
 
-	return q.Encode()
+	return strings.Replace(q.Encode(), "%2C", ",", 1)
 }
 
 type Projection string

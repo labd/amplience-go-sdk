@@ -117,7 +117,7 @@ func (client *Client) ContentTypeUpdate(current ContentType, input ContentTypeIn
 
 func (client *Client) ContentTypeList(hubID string, parameters StatusPaginationParameters) (ContentTypeResults, error) {
 	result := ContentTypeResults{}
-	endpoint := fmt.Sprintf("/hubs/%s/content-types?%s", hubID, StatusPaginationQueryString(parameters))
+	endpoint := fmt.Sprintf("/hubs/%s/content-types?%s", hubID, ContentTypePaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
 	return result, err
