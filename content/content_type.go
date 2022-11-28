@@ -42,6 +42,10 @@ type ContentTypeResults struct {
 	Items []ContentType
 }
 
+type ContentTypeSyncResult struct {
+	ContentTypeURI string `json:"contentTypeUri"`
+}
+
 func (r *ContentTypeResults) UnmarshalJSON(data []byte) error {
 	generic := GenericListResults{}
 	if err := json.Unmarshal(data, &generic); err != nil {
@@ -120,6 +124,22 @@ func (client *Client) ContentTypeList(hubID string, parameters StatusPaginationP
 	endpoint := fmt.Sprintf("/hubs/%s/content-types?%s", hubID, ContentTypePaginationQueryString(parameters))
 
 	err := client.request(http.MethodGet, endpoint, nil, &result)
+	return result, err
+}
+
+func (client *Client) ContentTypeSyncSchema(current ContentType) (ContentTypeSyncResult, error) {
+	result := ContentTypeSyncResult{}
+
+	var emptyInput struct{}
+	body, err := json.Marshal(emptyInput)
+
+	if err != nil {
+		return result, err
+	}
+
+	endpoint := fmt.Sprintf("/content-types/%s/schema", current.ID)
+
+	err = client.request(http.MethodPatch, endpoint, body, &result)
 	return result, err
 }
 
