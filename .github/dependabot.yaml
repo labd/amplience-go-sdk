@@ -1,6 +1,6 @@
-
 version: 2
 updates:
+  # Create grouped PRs for all minor and patch updates to Go dependencies
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
@@ -8,19 +8,58 @@ updates:
       day: friday
     commit-message:
       prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "minor-patch"
     groups:
       go:
+        update-types: [ "patch", "minor" ]
         patterns:
           - "*"
 
+  # Create a single PR for all major updates to Go dependencies
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: friday
+    labels:
+      - "dependencies"
+      - "major"
+    commit-message:
+      prefix: "chore(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-minor", "version-update:semver-patch" ]
+
+    # Create grouped PRs for all minor and patch updates to github actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: friday
+    labels:
+      - "dependencies"
+      - "minor-patch"
     commit-message:
       prefix: "chore(deps)"
     groups:
       github-actions:
+        update-types: [ "patch", "minor" ]
         patterns:
           - "*"
+
+  # Create a single PR for all major updates to github actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: friday
+    labels:
+      - "dependencies"
+      - "major"
+    commit-message:
+      prefix: "chore(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-minor", "version-update:semver-patch" ]
