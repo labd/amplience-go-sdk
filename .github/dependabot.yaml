@@ -10,8 +10,12 @@ updates:
     groups:
       go-minor-patch:
         update-types: [ "minor","patch", ]
+        patterns:
+          - "*"
       go-major:
         update-types: [ "major" ]
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -23,5 +27,9 @@ updates:
     groups:
       github-actions-minor-patch:
         update-types: [ "minor", "patch" ]
+        patterns:
+          - "*"
       github-actions-major:
         update-types: [ "major" ]
+        patterns:
+          - "*"
