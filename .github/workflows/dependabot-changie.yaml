@@ -1,5 +1,6 @@
 name: Dependabot add changie file
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened]
 
@@ -16,12 +17,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Fetch Dependabot metadata
-        id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v2
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Create change file
         uses: miniscruff/changie-action@v2
