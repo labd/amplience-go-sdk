@@ -8,12 +8,7 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      go-minor-patch:
-        update-types: [ "minor","patch" ]
-        patterns:
-          - "*"
-      go-major:
-        update-types: [ "major" ]
+      go:
         patterns:
           - "*"
 
@@ -25,11 +20,6 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      github-actions-minor-patch:
-        update-types: [ "minor", "patch" ]
-        patterns:
-          - "*"
-      github-actions-major:
-        update-types: [ "major" ]
+      github-actions:
         patterns:
           - "*"
