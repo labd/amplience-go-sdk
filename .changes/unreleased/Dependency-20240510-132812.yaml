@@ -1,0 +1,4 @@
+kind: Dependency
+body: 'chore(deps): bump github.com/evanphx/json-patch from 0.5.2 to 5.9.0+incompatible
+  in the go-major group'
+time: 2024-05-10T13:28:12.775146623Z
