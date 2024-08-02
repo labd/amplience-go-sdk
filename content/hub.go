@@ -10,12 +10,12 @@ type Hub struct {
 	ID             string          `json:"id,omitempty"`
 	Name           string          `json:"name"`
 	Label          string          `json:"label"`
-	Description    *string         `json:"description,omitempty"`
+	Description    *string         `json:"description"`
 	Plan           *string         `json:"plan,omitempty"`
 	AlgoliaSearch  string          `json:"algoliaSearch"`
 	CDV2           string          `json:"cdv2"`
 	OrganizationID string          `json:"organizationId"`
-	Settings       *Settings       `json:"settings,omitempty"`
+	Settings       *Settings       `json:"settings"`
 	Links          map[string]Link `json:"_links"`
 }
 
@@ -26,11 +26,11 @@ type AmplienceDamSettings struct {
 }
 
 type PlatformSettings struct {
-	AmplienceDam *AmplienceDamSettings `json:"amplience_dam,omitempty"`
+	AmplienceDam *AmplienceDamSettings `json:"amplience_dam"`
 }
 
 type PublishingSettings struct {
-	Platforms *PlatformSettings `json:"platforms,omitempty"`
+	Platforms *PlatformSettings `json:"platforms"`
 }
 
 type DeviceSettings struct {
@@ -41,7 +41,7 @@ type DeviceSettings struct {
 }
 
 type LocalizationSettings struct {
-	Locales []string `json:"locales,omitempty"`
+	Locales []string `json:"locales"`
 }
 
 type ApplicationSettings struct {
@@ -58,18 +58,18 @@ type VirtualStagingEnvironmentSettings struct {
 }
 
 type AssetManagementSettings struct {
-	Enabled      *bool   `json:"enabled,omitempty"`
-	ClientConfig *string `json:"clientConfig,omitempty"`
+	Enabled      *bool   `json:"enabled"`
+	ClientConfig *string `json:"clientConfig"`
 }
 
 type Settings struct {
-	Publishing                       *PublishingSettings                       `json:"publishing,omitempty"`
-	Devices                          []DeviceSettings                          `json:"devices,omitempty"`
-	Localization                     *LocalizationSettings                     `json:"localization,omitempty"`
-	Applications                     []ApplicationSettings                     `json:"applications,omitempty"`
-	PreviewVirtualStagingEnvironment *PreviewVirtualStagingEnvironmentSettings `json:"previewVirtualStagingEnvironment,omitempty"`
-	VirtualStagingEnvironment        *VirtualStagingEnvironmentSettings        `json:"virtualStagingEnvironment,omitempty"`
-	AssetManagement                  *AssetManagementSettings                  `json:"assetManagement,omitempty"`
+	Publishing                       *PublishingSettings                       `json:"publishing"`
+	Devices                          []DeviceSettings                          `json:"devices"`
+	Localization                     *LocalizationSettings                     `json:"localization"`
+	Applications                     []ApplicationSettings                     `json:"applications"`
+	PreviewVirtualStagingEnvironment *PreviewVirtualStagingEnvironmentSettings `json:"previewVirtualStagingEnvironment"`
+	VirtualStagingEnvironment        *VirtualStagingEnvironmentSettings        `json:"virtualStagingEnvironment"`
+	AssetManagement                  *AssetManagementSettings                  `json:"assetManagement"`
 }
 
 type HubUpdateInput struct {
