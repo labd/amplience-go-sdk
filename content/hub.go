@@ -128,7 +128,9 @@ func (client *Client) HubGetAll() ([]Hub, error) {
 	return result, err
 }
 
-func (client *Client) HubUpdate(id string, input HubUpdateInput) (Hub, error) {
+// HubPatch will update hub settings. Note that if any settings are not provided they will be ignored during the
+// patch, so they will continue existing.
+func (client *Client) HubPatch(id string, input HubUpdateInput) (Hub, error) {
 	endpoint := fmt.Sprintf("/hubs/%s", id)
 	result := Hub{}
 
