@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        go-version: ["1.15"]
+        go-version: ["1.15", "1.22"]
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +31,13 @@ jobs:
         with:
           verbose: true
 
+  changes-file:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mach-composer/check-changie-changes-action@main
+
   changie:
     runs-on: ubuntu-latest
     needs: test
@@ -45,7 +52,7 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare release
-        uses: labd/changie-release-action@main
+        uses: labd/changie-release-action@v0.3.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-workflow: 'release.yaml'
