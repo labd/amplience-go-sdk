@@ -36,7 +36,7 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - uses: mach-composer/check-changie-changes-action@main
+      - uses: mach-composer/check-changie-changes-action@7a4054d1842bb867a0a2c459f154f821e7a50cc2 # main
 
   changie:
     runs-on: ubuntu-latest
