@@ -37,6 +37,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: labd/changie-release-action@43112f435367957ee3fefc64b3b712c7e672be33 # v0.6.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   changie:
     runs-on: ubuntu-latest
