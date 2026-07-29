@@ -1,0 +1,3 @@
+kind: Added
+body: support for the Amplience Extensions API to the SDK. Extensions can now be managed with full CRUD operations through the client.
+time: 2026-07-29T08:00:51.523287+02:00
