@@ -8,18 +8,18 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        go-version: ["1.15", "1.22"]
+        go-version: ["1.26"]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Go ${{ matrix.go-version }}
-        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: ${{ matrix.go-version }}
 
       - name: golangci-lint
         continue-on-error: true
-        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6.5.2
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           args: --issues-exit-code=0 --timeout=5m
 
@@ -27,7 +27,7 @@ jobs:
         run: go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... ./...
 
       - name: Upload to codecov
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           verbose: true
 
@@ -35,8 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - uses: mach-composer/check-changie-changes-action@7a4054d1842bb867a0a2c459f154f821e7a50cc2 # main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: labd/changie-release-action@43112f435367957ee3fefc64b3b712c7e672be33 # v0.6.2
 
   changie:
     runs-on: ubuntu-latest
@@ -47,11 +47,11 @@ jobs:
       pull-requests: write
       actions: write
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Prepare release
-        uses: labd/changie-release-action@cabe11e8578d5867ea0695351fd37e85ecb32aa6 # v0.3.2
+        uses: labd/changie-release-action@43112f435367957ee3fefc64b3b712c7e672be33 # v0.6.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
