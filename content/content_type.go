@@ -94,7 +94,7 @@ func (client *Client) ContentTypeFindByUri(uri string, hubId string) (ContentTyp
 		}
 	}
 
-	return dummy, fmt.Errorf(fmt.Sprintf("Could not find content-type %s", uri))
+	return dummy, fmt.Errorf("Could not find content-type %s", uri)
 }
 
 func (client *Client) ContentTypeUpdate(current ContentType, input ContentTypeInput) (ContentType, error) {
