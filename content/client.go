@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -50,7 +50,7 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	var httpClient *http.Client
 	if config.HTTPClient != nil {
 		httpClient = auth.Client(
-			context.WithValue(oauth2.NoContext, oauth2.HTTPClient, config.HTTPClient))
+			context.WithValue(context.Background(), oauth2.HTTPClient, config.HTTPClient))
 	} else {
 		httpClient = auth.Client(context.TODO())
 	}
@@ -84,6 +84,9 @@ func (client *Client) request(method string, path string, body []byte, output in
 
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, method, url, buf)
+	if err != nil {
+		return err
+	}
 
 	req.Header.Set("content-type", "application/json")
 
@@ -101,7 +104,7 @@ func (client *Client) request(method string, path string, body []byte, output in
 		return err
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	switch {
 	case resp.StatusCode >= 200 && resp.StatusCode < 204:
@@ -114,7 +117,7 @@ func (client *Client) request(method string, path string, body []byte, output in
 	case resp.StatusCode >= 400:
 		newErr := ErrorResponse{}
 
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		bodyBytes, _ := io.ReadAll(resp.Body)
 
 		if err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&newErr); err != nil {
 			return err
