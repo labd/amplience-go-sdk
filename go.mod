@@ -1,6 +1,6 @@
 module github.com/labd/amplience-go-sdk
 
-go 1.23.0
+go 1.27
 
 require (
 	github.com/evanphx/json-patch v0.5.2
