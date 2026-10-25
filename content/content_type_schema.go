@@ -81,7 +81,7 @@ func (client *Client) ContentTypeSchemaFindBySchemaId(schemaId string, hubId str
 		}
 	}
 
-	return dummy, fmt.Errorf(fmt.Sprintf("Could not find content-type-schema %s", schemaId))
+	return dummy, fmt.Errorf("Could not find content-type-schema %s", schemaId)
 }
 
 func (client *Client) ContentTypeSchemaUpdate(current ContentTypeSchema, update ContentTypeSchemaInput) (ContentTypeSchema, error) {
