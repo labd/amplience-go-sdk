@@ -1,6 +1,13 @@
 name: Run Tests
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -23,14 +30,19 @@ jobs:
       - name: Run tests
         run: go test -race ./...
 
-  changes-file:
+  govulncheck:
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: labd/changie-release-action@43112f435367957ee3fefc64b3b712c7e672be33 # v0.6.2
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Run govulncheck
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 
   changie:
     runs-on: ubuntu-latest
